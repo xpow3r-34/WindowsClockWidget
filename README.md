@@ -21,7 +21,7 @@ C# / WPF / .NET 8 ile geliştirilmiştir.
 1. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) yükleyin
 2. Repo'yu klonlayın:
    ```
-   git clone https://github.com/xpow3r/WindowsClockWidget.git
+   git clone https://github.com/xpow3r-34/WindowsClockWidget.git
    ```
 3. Proje dizininde derleyin:
    ```
@@ -49,4 +49,4 @@ MIT
 
 ## Geliştiren
 
-xpow3r • 2026
+xpow3r-34 • 2026

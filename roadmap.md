@@ -1,7 +1,7 @@
 # WindowsClockWidget — Yol Haritası
 
 Windows masaüstü için şeffaf saat widget'ı (C# / WPF / .NET 8).
-Geliştiren: xpow3r • 2026
+Geliştiren: xpow3r-34 • 2026
 
 ---
 
