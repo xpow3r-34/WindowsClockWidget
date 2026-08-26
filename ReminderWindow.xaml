@@ -1,0 +1,104 @@
+<Window x:Class="WindowsClockWidget.ReminderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WindowsClockWidget"
+        Title="Yeni Hatırlatma"
+        Width="380" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F7F7F8"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="14,0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#666666"/>
+        </Style>
+        <local:RepeatTypeConverter x:Key="RepeatConv"/>
+    </Window.Resources>
+
+    <StackPanel Margin="20" Width="320">
+
+        <TextBlock Text="Başlık" Style="{StaticResource FieldLabel}"/>
+        <TextBox x:Name="TitleBox" Height="30" Margin="0,2,0,12" FontSize="13"
+                 VerticalContentAlignment="Center"/>
+
+        <TextBlock Text="Tarih" Style="{StaticResource FieldLabel}"/>
+        <DatePicker x:Name="DatePicker" Height="30" Margin="0,2,0,12"/>
+
+        <TextBlock Text="Saat" Style="{StaticResource FieldLabel}"/>
+        <Grid Margin="0,2,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" x:Name="HourBox" Height="30"/>
+            <TextBlock Grid.Column="1" Text=":" VerticalAlignment="Center"
+                       Margin="6,0" FontWeight="Bold" FontSize="16"/>
+            <ComboBox Grid.Column="2" x:Name="MinuteBox" Height="30"/>
+        </Grid>
+
+        <TextBlock Text="Tekrar" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="RepeatBox" Height="30" Margin="0,2,0,12">
+            <ComboBoxItem Content="Yok" Tag="None"/>
+            <ComboBoxItem Content="Her gün" Tag="Daily"/>
+            <ComboBoxItem Content="Her hafta" Tag="Weekly"/>
+            <ComboBoxItem Content="Her ay" Tag="Monthly"/>
+        </ComboBox>
+
+        <TextBlock Text="Hatırlatma zamanı" Style="{StaticResource FieldLabel}"/>
+        <ComboBox x:Name="BeforeBox" Height="30" Margin="0,2,0,12">
+            <ComboBoxItem Content="Hemen" Tag="0"/>
+            <ComboBoxItem Content="5 dakika önce" Tag="5"/>
+            <ComboBoxItem Content="10 dakika önce" Tag="10"/>
+            <ComboBoxItem Content="15 dakika önce" Tag="15"/>
+            <ComboBoxItem Content="30 dakika önce" Tag="30"/>
+            <ComboBoxItem Content="1 saat önce" Tag="60"/>
+        </ComboBox>
+
+        <TextBlock Text="Ses" Style="{StaticResource FieldLabel}"/>
+        <Grid Margin="0,2,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" x:Name="SoundBox" Height="30"/>
+            <Button Grid.Column="1" Content="Dinle" Width="50" Height="30"
+                    Margin="8,0,0,0" Click="PreviewSound_Click"
+                    Background="#E4E4E6" BorderThickness="0" Cursor="Hand"/>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Kaydet" Click="Save_Click" Style="{StaticResource ActionBtn}"
+                    Background="#1F1E1D" Foreground="White"/>
+            <Button Content="Vazgeç" Click="Cancel_Click" Style="{StaticResource ActionBtn}"
+                    Background="#E4E4E6" Foreground="#1F1E1D" Margin="10,0,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
