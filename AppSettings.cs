@@ -61,7 +61,7 @@ public class AppSettings
     public int WeatherRefreshMinutes { get; set; } = 15;
 
     [JsonIgnore]
-    public static string AppVersion => "1.2.0";
+    public static string AppVersion => "1.2.1";
 
     [JsonIgnore]
     public static string FilePath => Path.Combine(

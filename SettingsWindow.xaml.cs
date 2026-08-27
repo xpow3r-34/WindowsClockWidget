@@ -72,6 +72,11 @@ public partial class SettingsWindow : Window
         UpdateLabels();
     }
 
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        MaxHeight = Math.Max(300, SystemParameters.WorkArea.Height - 40);
+    }
+
     private static List<string> LoadFonts()
     {
         try

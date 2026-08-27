@@ -6,6 +6,7 @@
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
+        Loaded="OnLoaded"
         Background="#F7F7F8"
         FontFamily="Segoe UI">
 
@@ -48,6 +49,7 @@
         </Style>
     </Window.Resources>
 
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -272,4 +274,5 @@
                     Background="#E4E4E6" Foreground="#1F1E1D" Margin="10,0,0,0"/>
         </StackPanel>
     </Grid>
+    </ScrollViewer>
 </Window>

@@ -91,6 +91,11 @@ Geliştiren: xpow3r-34 • 2026
 - Liste yenileme düzeltmesi: `ItemsSource = null` ile zorunlu yenileme
 - Kayıt sonrası `_selectedDate` güncelleniyor
 
+### v1.2.1 — Ayarlar Penceresi Boyutlandırma Düzeltmesi
+- Ayarlar penceresi içeriği ekranı aşıyordu; içerik **ScrollViewer** içine alındı (dikey kaydırma)
+- Pencere `MaxHeight` değeri çalışma alanı yüksekliğine kilitlendi
+  (`WorkArea.Height - 40`, en az 300px) — `OnLoaded` olayı ile
+
 ---
 
 ## 🗺️ Planlanan Geliştirmeler
@@ -106,6 +111,7 @@ Geliştiren: xpow3r-34 • 2026
 ---
 
 ## Sürüm Geçmişi
+- **1.2.1** — Ayarlar penceresi boyutlandırma düzeltmesi (ScrollViewer + MaxHeight)
 - **1.2.0** — Takvim ve hatırlatma sistemi yeniden yazımı, tarih gösterimi, serbest konumlandırma
 - **1.1.0** — Ayacı font değişikliği, NotifyIcon bildirimi, DateText düzeltmesi, ayar grupları
 - **1.0.9** — Y offset düzeltmesi, takvim rengi, şehir ismi gösterimi
