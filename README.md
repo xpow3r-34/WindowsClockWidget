@@ -47,6 +47,15 @@ C# / WPF / .NET 8 ile geliştirilmiştir.
 
 MIT
 
+## Ekran Görüntüleri
+<img width="1028" height="1203" alt="clockwidget-ss1" src="https://github.com/user-attachments/assets/434a521d-6596-4fa9-9a5f-8301dc14189f" />
+<img width="1026" height="1198" alt="clockwidget-ss3" src="https://github.com/user-attachments/assets/5332c567-e1f2-4d1b-90c8-765922e2a1fb" />
+<img width="1304" height="504" alt="clockwidget-ss2" src="https://github.com/user-attachments/assets/9604368e-fcd7-40c0-8149-63d8fe8c7d56" />
+
+
+
+
+
 ## Geliştiren
 
 xpow3r-34 • 2026
