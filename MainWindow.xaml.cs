@@ -26,6 +26,7 @@ public partial class MainWindow : Window
     private readonly ReminderService _reminderService = new();
     private AppSettings _settings;
     private WeatherInfo? _lastWeather;
+    private bool _weatherRefreshInProgress;
     private int _lastChimeHour = -1;
     private int _calYear, _calMonth;
     private List<Reminder> _reminders = new();
@@ -35,6 +36,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _settings = AppSettings.Load();
+        InitCalendar();
         ApplySettings();
 
         FooterItem.Header = $"xpow3r 2026  •  v{AppSettings.AppVersion}";
@@ -60,8 +62,6 @@ public partial class MainWindow : Window
         UpdateClock();
         _lastChimeHour = DateTime.Now.Hour;   // açılışta çalmasın
         _ = LoadWeatherAsync();
-        InitCalendar();
-
         _reminderCheckTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
         _reminderCheckTimer.Tick += (_, _) => CheckReminders();
         _reminderCheckTimer.Start();
@@ -118,6 +118,7 @@ public partial class MainWindow : Window
 
     private System.Media.SoundPlayer? _chimePlayer;
     private System.Windows.Forms.NotifyIcon? _trayIcon;
+    private bool _soundFailureReported;
 
     private void PlayChime()
     {
@@ -131,37 +132,68 @@ public partial class MainWindow : Window
 
             _chimePlayer?.Dispose();
             _chimePlayer = new System.Media.SoundPlayer(path);
+            _chimePlayer.Load();
             _chimePlayer.Play();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            ReportSoundError(ex);
+        }
     }
 
     private async Task LoadWeatherAsync()
     {
+        if (_weatherRefreshInProgress) return;
+        _weatherRefreshInProgress = true;
         try
         {
             DescText.Opacity = 0.5;
             DescText.Text = "yükleniyor…";
-            var w = await _weather.GetWeatherAsync(_settings.City);
+            DescText.ToolTip = null;
+            var w = await _weather.GetWeatherAsync(_settings);
             _lastWeather = w;
 
             TempText.Text = $"{w.Temperature:0}°";
             DescText.Text = $"{w.Description} - {_settings.City}";
             DescText.Opacity = 0.75;
-            WeatherIcon.Text = WeatherService.IconFor(w.Code).ToString();
+            DescText.ToolTip = null;
+            WeatherIcon.Text = (w.Icon ?? WeatherService.IconFor(w.Code)).ToString();
 
             ToolTip = $"Hissedilen {w.Apparent:0}° • Nem %{w.Humidity} • Rüzgâr {w.WindSpeed:0} km/s";
         }
-        catch
+        catch (Exception ex)
         {
             _lastWeather = null;
-            DescText.Text = "bağlantı yok";
+            TempText.Text = "--°";
+            WeatherIcon.Text = "!";
+            DescText.Text = GetWeatherErrorText(ex);
             DescText.Opacity = 0.5;
+            if (ex is not WeatherRateLimitException { IsRetrySuppressed: true })
+                App.Log(ex);
+            DescText.ToolTip = $"Ayrıntı: {ex.Message}\nGünlük: {App.LogPath}";
+            ToolTip = $"{DescText.Text}\n{DescText.ToolTip}";
         }
         finally
         {
+            _weatherRefreshInProgress = false;
             UpdateDetails();
         }
+    }
+
+    private static string GetWeatherErrorText(Exception ex) => ex switch
+    {
+        WeatherRateLimitException limit => $"{limit.Provider} güncelleme sınırına ulaşıldı. {limit.RetryAt.ToLocalTime():HH:mm} sonrasında yeniden deneyin.",
+        TimeoutException or TaskCanceledException => "Hava durumu isteği zaman aşımına uğradı.",
+        System.Net.Http.HttpRequestException { StatusCode: System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden }
+            => "Kaynak isteği reddetti; API anahtarı veya User-Agent bilgilerini kontrol edin.",
+        System.Net.Http.HttpRequestException => "Hava durumu sunucusuna ulaşılamadı.",
+        System.Text.Json.JsonException => "Hava durumu sunucusundan geçersiz yanıt alındı.",
+        _ => ex.Message
+    };
+
+    private async void WeatherRefresh_Click(object sender, RoutedEventArgs e)
+    {
+        await LoadWeatherAsync();
     }
 
     private void UpdateDetails()
@@ -418,6 +450,11 @@ public partial class MainWindow : Window
         var brush = (SolidColorBrush)new BrushConverter().ConvertFromString(_settings.CalendarColor)!;
         var todayBrush = new SolidColorBrush(brush.Color) { Opacity = 0.18 };
         var dimBrush = new SolidColorBrush(brush.Color) { Opacity = 0.4 };
+        CalMonthLabel.Foreground = brush;
+        CalPrevBtn.Foreground = dimBrush;
+        CalNextBtn.Foreground = dimBrush;
+        foreach (TextBlock header in CalDayHeaders.Children)
+            header.Foreground = dimBrush;
         double fs = 9;
 
         CalDays.Children.Clear();
@@ -588,10 +625,14 @@ public partial class MainWindow : Window
             {
                 _reminderPlayer?.Dispose();
                 _reminderPlayer = new System.Media.SoundPlayer(path);
+                _reminderPlayer.Load();
                 _reminderPlayer.Play();
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            ReportSoundError(ex);
+        }
 
         // Widget'ta bildirim göster
         ShowNotificationOnWidget($"⏰ {r.Title}");
@@ -611,6 +652,16 @@ public partial class MainWindow : Window
                 System.Windows.Forms.ToolTipIcon.Info);
         }
         catch { }
+    }
+
+    private void ReportSoundError(Exception ex)
+    {
+        App.Log(ex);
+        if (_soundFailureReported) return;
+        _soundFailureReported = true;
+        MessageBox.Show(
+            $"Ses çalınamadı. Ayrıntılar hata günlüğüne kaydedildi.\n\n{ex.Message}\n\n{App.LogPath}",
+            "WindowsClockWidget - Ses", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     private DispatcherTimer? _notificationTimer;

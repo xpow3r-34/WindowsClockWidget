@@ -1,10 +1,13 @@
 using System.IO;
 using System.Text.Json;
+using System.Windows;
+using MessageBox = System.Windows.MessageBox;
 
 namespace WindowsClockWidget;
 
 public class ReminderService
 {
+    private static bool _loadErrorReported;
     private static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
@@ -22,7 +25,26 @@ public class ReminderService
             if (File.Exists(FilePath))
                 return JsonSerializer.Deserialize<List<Reminder>>(File.ReadAllText(FilePath)) ?? new();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+            try
+            {
+                if (File.Exists(FilePath))
+                    File.Copy(FilePath, $"{FilePath}.corrupt-{DateTime.Now:yyyyMMdd-HHmmssfff}.bak");
+            }
+            catch (Exception backupError)
+            {
+                App.Log(backupError);
+            }
+            if (!_loadErrorReported)
+            {
+                _loadErrorReported = true;
+                MessageBox.Show(
+                    $"Hatırlatma dosyası okunamadı. Boş listeyle devam edilecek; özgün dosyanın yedeği alınmaya çalışıldı.\n\nAyrıntılar: {App.LogPath}",
+                    "WindowsClockWidget - Hatırlatmalar", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
         return new();
     }
 
@@ -35,10 +57,13 @@ public class ReminderService
     public List<Reminder> GetDueReminders(List<Reminder> reminders, DateTime now)
     {
         return reminders.Where(r =>
-            r.IsEnabled &&
-            r.DateTime <= now &&
-            r.DateTime > now.AddMinutes(-5)   // en fazla 5 dk gecikmeli
-        ).ToList();
+        {
+            if (!r.IsEnabled) return false;
+
+            // DateTime etkinliğin saatidir; bildirim, ayarlanan süre kadar önce verilir.
+            var notificationTime = r.DateTime.AddMinutes(-Math.Max(0, r.ReminderMinutesBefore));
+            return notificationTime <= now && notificationTime > now.AddMinutes(-5);
+        }).ToList();
     }
 
     public List<Reminder> GetRemindersForDate(List<Reminder> reminders, DateTime date)

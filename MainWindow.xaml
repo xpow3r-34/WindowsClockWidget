@@ -15,6 +15,8 @@
         <ContextMenu>
             <MenuItem Header="Ayarlar" Click="Settings_Click"/>
             <Separator/>
+            <MenuItem Header="Hava Durumunu Güncelle" Click="WeatherRefresh_Click"/>
+            <Separator/>
             <MenuItem Header="Takvim" Click="Calendar_Click"/>
             <Separator/>
             <MenuItem Header="Kapat" Click="Close_Click"/>
@@ -74,7 +76,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock x:Name="TempText" FontSize="20" FontWeight="SemiBold">--°</TextBlock>
                             <TextBlock x:Name="DescText" Margin="8,0,0,0" FontSize="11" Opacity="0.75"
-                                       VerticalAlignment="Center">yükleniyor…</TextBlock>
+                                       VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="280">yükleniyor…</TextBlock>
                         </StackPanel>
                         <TextBlock x:Name="DetailsText" FontSize="10" Opacity="0.6"
                                    Visibility="Collapsed"/>

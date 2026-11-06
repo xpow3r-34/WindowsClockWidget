@@ -7,6 +7,25 @@ Geliştiren: xpow3r-34 • 2026
 
 ## ✅ Tamamlanan İşler
 
+### v1.2.6 — Küçük Ekran Kaydırması ve Takvim Renkleri
+- Ayarlar penceresindeki mevcut dikey kaydırma daha küçük ekran çalışma alanlarına uyacak şekilde iyileştirildi; yatay kaydırma kapatıldı.
+- Mini takvimde ay/yıl başlığı, hafta günü kısaltmaları ve yön okları seçilen takvim rengine bağlandı; renk değişikliklerinde yeniden uygulanır.
+
+### v1.2.5 — Hava Durumu Kaynağı ve Yenileme Ayarları
+- Ayarlara Open-Meteo, OpenWeather, WeatherAPI.com ve MET Norway kaynak seçimi eklendi.
+- OpenWeather ve WeatherAPI.com API anahtarları ile MET Norway User-Agent bilgisi ayarlardan girilebilir.
+- Otomatik yenileme aralığı seçilebilir; MET Norway kullanım koşullarına uygun olarak aralık 3 saate sabitlenir.
+
+### v1.2.4 — Başlangıç ve Hava Durumu İstek Sınırı Düzeltmeleri
+- Takvim ay/yıl değerleri ayar uygulanmadan önce hazırlanır; takvim açıkken başlangıçta oluşan `IndexOutOfRangeException` giderilir.
+- Hava durumu şehir koordinatları önbelleğe alınır.
+- Open-Meteo `429 Too Many Requests` yanıtında `Retry-After` süresine uyulur; bekleme sırasında yeni ağ isteği gönderilmez.
+
+### v1.2.3 — Hava Durumu Hata Açıklaması ve Elle Yenileme
+- Hava durumu başarısız olduğunda bağlantı, zaman aşımı ve geçersiz yanıt gibi hata türüne uygun açıklama gösterilir; ayrıntı araç ipucunda sunulur.
+- Sağ tık menüsüne **Hava Durumunu Güncelle** komutu eklendi.
+- Eş zamanlı hava durumu istekleri engellendi.
+
 ### v1.0.0 — Temel Widget
 - Şeffaf, çerçevesiz, her zaman üstte duran saat widget'ı
 - Sürükleyerek konumlandırma, ekran kenarına yapışma yok (serbest konum)
@@ -91,6 +110,12 @@ Geliştiren: xpow3r-34 • 2026
 - Liste yenileme düzeltmesi: `ItemsSource = null` ile zorunlu yenileme
 - Kayıt sonrası `_selectedDate` güncelleniyor
 
+### v1.2.2 — Hatırlatma ve Hata Yönetimi Düzeltmeleri
+- Hatırlatmalardaki “kaç dakika önce” seçeneği bildirim zamanlamasında uygulanır.
+- Okunamayan ayar ve hatırlatma dosyaları hata günlüğüne kaydedilir; özgün dosya için yedek alınmaya çalışılır ve kullanıcı uyarılır.
+- Hava durumu hataları hata günlüğüne yazılır; ayrıntı widget araç ipucunda gösterilir.
+- Saatlik uyarı, hatırlatma ve ses önizleme sorunları hata günlüğüne kaydedilir; ses önizlemesi başarısız olursa kullanıcı bilgilendirilir.
+
 ### v1.2.1 — Ayarlar Penceresi Boyutlandırma Düzeltmesi
 - Ayarlar penceresi içeriği ekranı aşıyordu; içerik **ScrollViewer** içine alındı (dikey kaydırma)
 - Pencere `MaxHeight` değeri çalışma alanı yüksekliğine kilitlendi
@@ -111,6 +136,11 @@ Geliştiren: xpow3r-34 • 2026
 ---
 
 ## Sürüm Geçmişi
+- **1.2.6** — Küçük ekranlarda ayarlar kaydırması ve mini takvim renk uygulaması
+- **1.2.5** — Hava durumu kaynağı seçimi ve otomatik yenileme aralığı ayarı
+- **1.2.4** — Takvim açıkken başlangıç çökmesi ve hava durumu 429 istek sınırı düzeltmeleri
+- **1.2.3** — Hava durumu hatalarında açıklayıcı mesaj ve sağ tık menüsünden elle yenileme
+- **1.2.2** — Hatırlatma ön bildirim süresi düzeltmesi, okunamayan dosya yedekleme/uyarısı, hava durumu ve ses hata kayıtları
 - **1.2.1** — Ayarlar penceresi boyutlandırma düzeltmesi (ScrollViewer + MaxHeight)
 - **1.2.0** — Takvim ve hatırlatma sistemi yeniden yazımı, tarih gösterimi, serbest konumlandırma
 - **1.1.0** — Ayacı font değişikliği, NotifyIcon bildirimi, DateText düzeltmesi, ayar grupları

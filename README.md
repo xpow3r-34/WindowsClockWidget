@@ -1,5 +1,7 @@
 # WindowsClockWidget
 
+**Güncel sürüm: 1.2.6**
+
 Windows masaüstü için şeffaf, özelleştirilebilir saat widget'ı.
 
 C# / WPF / .NET 8 ile geliştirilmiştir.
@@ -15,6 +17,41 @@ C# / WPF / .NET 8 ile geliştirilmiştir.
 - Saat başı uyarısı
 - Windows ile başlatma
 - Ayarlar penceresi (canlı önizleme)
+- Hatırlatmalar için seçilen süre kadar önceden bildirim
+- Okuma ve ses hatalarının hata günlüğüne kaydedilmesi
+- Okunamayan ayar ve hatırlatma dosyaları için yedekleme ve kullanıcı uyarısı
+- Sağ tık menüsünden hava durumunu elle yenileme
+- Hava durumu kaynağı ve otomatik yenileme aralığı seçimi
+- Ayarlar penceresinde küçük ekranlar için dikey kaydırma
+- Mini takvimde ay başlığı, hafta günleri ve gezinme okları için seçilebilir renk
+
+## 1.2.6 değişiklikleri
+
+- Ayarlar penceresindeki mevcut dikey kaydırma, daha küçük çalışma alanlarına uyacak şekilde iyileştirildi.
+- Mini takvimde ay/yıl başlığı, gün kısaltmaları ve sağ/sol oklar seçilen takvim rengini kullanır; renk değişince görünüm de yenilenir.
+
+## 1.2.5 değişiklikleri
+
+- Hava durumu kaynağı olarak Open-Meteo, OpenWeather, WeatherAPI.com veya MET Norway seçilebilir.
+- API anahtarı gerektiren kaynakların bilgileri ayarlardan girilir ve kullanıcı ayarlarında saklanır.
+- Otomatik yenileme aralığı ayarlanabilir; MET Norway için 3 saatlik aralık uygulanır.
+
+## 1.2.4 değişiklikleri
+
+- Takvim görünümü açıkken oluşan başlangıç çökmesi giderildi.
+- Hava durumu konum bilgisi önbelleğe alınır; servis 429 istek sınırı döndürürse yeniden deneme zamanına kadar istek gönderilmez.
+
+## 1.2.3 değişiklikleri
+
+- Hava durumu hatalarında genel “bağlantı yok” metni yerine hata türüne göre açıklama gösterilir.
+- Sağ tık menüsüne “Hava Durumunu Güncelle” komutu eklendi.
+- Aynı anda birden fazla hava durumu isteği gönderilmesi engellendi.
+
+## 1.2.2 değişiklikleri
+- Hatırlatmalardaki “kaç dakika önce” seçeneği artık bildirim zamanlamasında uygulanır.
+- Okunamayan ayar ve hatırlatma dosyaları için hata günlüğü, yedekleme ve kullanıcı uyarısı eklendi.
+- Hava durumu hataları hata günlüğüne yazılır ve ayrıntısı widget araç ipucunda gösterilir.
+- Saatlik uyarı, hatırlatma ve ses önizleme sorunları hata günlüğüne kaydedilir; ses önizlemesi başarısız olursa kullanıcı bilgilendirilir.
 
 ## Kurulum
 

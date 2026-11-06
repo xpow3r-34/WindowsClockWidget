@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ComboBox = System.Windows.Controls.ComboBox;
+using MessageBox = System.Windows.MessageBox;
 
 namespace WindowsClockWidget;
 
@@ -14,6 +15,9 @@ public partial class SettingsWindow : Window
     public event Action<AppSettings>? ApplyRequested;    // Uygula butonu
     public event Action<AppSettings>? PreviewRequested;  // canlı önizleme (renk seçici)
     private readonly AppSettings _original;
+    private readonly Dictionary<string, string> _credentialDrafts = new(StringComparer.OrdinalIgnoreCase);
+    private string _activeCredentialSource = "OpenMeteo";
+    private bool _weatherControlsReady;
 
     private static readonly string[] Cities =
     {
@@ -60,6 +64,22 @@ public partial class SettingsWindow : Window
         foreach (var city in Cities) CityBox.Items.Add(city);
         CityBox.SelectedItem = CityBox.Items.Contains(current.City) ? current.City : Cities[0];
 
+        _credentialDrafts["OpenWeather"] = current.OpenWeatherApiKey;
+        _credentialDrafts["WeatherAPI"] = current.WeatherApiKey;
+        _credentialDrafts["MetNorway"] = current.MetNorwayUserAgent;
+        _activeCredentialSource = string.IsNullOrWhiteSpace(current.WeatherSource) ? "OpenMeteo" : current.WeatherSource;
+        var sourceItem = WeatherSourceBox.Items.Cast<ComboBoxItem>()
+            .FirstOrDefault(item => string.Equals(item.Tag as string, _activeCredentialSource, StringComparison.OrdinalIgnoreCase));
+        if (sourceItem is null) _activeCredentialSource = "OpenMeteo";
+        WeatherSourceBox.SelectedValue = _activeCredentialSource;
+
+        int refreshMinutes = new[] { 5, 15, 30, 60, 180 }.Contains(current.WeatherRefreshMinutes)
+            ? current.WeatherRefreshMinutes : 15;
+        WeatherRefreshBox.SelectedValue = refreshMinutes.ToString();
+        WeatherCredentialBox.Text = _credentialDrafts.GetValueOrDefault(_activeCredentialSource, "");
+        _weatherControlsReady = true;
+        UpdateWeatherSourceControls();
+
         PositionBox.SelectedIndex = current.WeatherPosition == "Above" ? 1 : 0;
         DatePositionBox.SelectedIndex = current.DatePosition == "Below" ? 1 : 0;
         WeatherOffsetXSlider.Value = Math.Clamp(current.WeatherOffsetX, -200, 200);
@@ -74,7 +94,7 @@ public partial class SettingsWindow : Window
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        MaxHeight = Math.Max(300, SystemParameters.WorkArea.Height - 40);
+        MaxHeight = Math.Max(120, SystemParameters.WorkArea.Height - 40);
     }
 
     private static List<string> LoadFonts()
@@ -149,7 +169,11 @@ public partial class SettingsWindow : Window
         DateFontSize = s.DateFontSize, DateFontWeight = s.DateFontWeight,
         DateColor = s.DateColor, DatePosition = s.DatePosition,
         DateOffsetX = s.DateOffsetX, DateOffsetY = s.DateOffsetY,
-        WeatherOffsetX = s.WeatherOffsetX, WeatherOffsetY = s.WeatherOffsetY
+        WeatherOffsetX = s.WeatherOffsetX, WeatherOffsetY = s.WeatherOffsetY,
+        WeatherSource = s.WeatherSource,
+        OpenWeatherApiKey = s.OpenWeatherApiKey,
+        WeatherApiKey = s.WeatherApiKey,
+        MetNorwayUserAgent = s.MetNorwayUserAgent
     };
 
     private void UpdateLabels()
@@ -166,6 +190,42 @@ public partial class SettingsWindow : Window
     }
 
     private void Any_Changed(object sender, RoutedPropertyChangedEventArgs<double> e) => UpdateLabels();
+
+    private void WeatherSource_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_weatherControlsReady) return;
+        _credentialDrafts[_activeCredentialSource] = WeatherCredentialBox.Text;
+        _activeCredentialSource = WeatherSourceBox.SelectedValue as string ?? "OpenMeteo";
+        WeatherCredentialBox.Text = _credentialDrafts.GetValueOrDefault(_activeCredentialSource, "");
+        UpdateWeatherSourceControls();
+    }
+
+    private void UpdateWeatherSourceControls()
+    {
+        WeatherCredentialPanel.Visibility = _activeCredentialSource == "OpenMeteo"
+            ? Visibility.Collapsed : Visibility.Visible;
+        WeatherRefreshBox.IsEnabled = _activeCredentialSource != "MetNorway";
+
+        switch (_activeCredentialSource)
+        {
+            case "OpenWeather":
+                WeatherCredentialLabel.Text = "OpenWeather API anahtarı";
+                WeatherSourceHint.Text = "API anahtarı gerekir. Anahtar settings.json dosyasında saklanır.";
+                break;
+            case "WeatherAPI":
+                WeatherCredentialLabel.Text = "WeatherAPI.com API anahtarı";
+                WeatherSourceHint.Text = "API anahtarı gerekir. Anahtar settings.json dosyasında saklanır.";
+                break;
+            case "MetNorway":
+                WeatherCredentialLabel.Text = "MET Norway User-Agent";
+                WeatherSourceHint.Text = "Türkiye için aynı konum isteği 3 saatten sık yinelenmemelidir. Örnek: WindowsClockWidget/1.2.5 (eposta adresiniz).";
+                WeatherRefreshBox.SelectedValue = "180";
+                break;
+            default:
+                WeatherSourceHint.Text = "API anahtarı gerekmez. Şehir koordinatları Open-Meteo Geocoding ile bulunur.";
+                break;
+        }
+    }
 
     // ---- Windows sesleri ----
     private static string MediaFolder => System.IO.Path.Combine(
@@ -197,7 +257,10 @@ public partial class SettingsWindow : Window
             if (match != null) SoundBox.SelectedItem = match;
             else if (SoundBox.Items.Count > 0) SoundBox.SelectedIndex = 0;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+        }
     }
 
     private void PreviewSound_Click(object sender, RoutedEventArgs e)
@@ -207,9 +270,14 @@ public partial class SettingsWindow : Window
             var path = SelectedSoundPath;
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return;
             using var player = new System.Media.SoundPlayer(path);
-            player.Play();
+            player.PlaySync();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+            MessageBox.Show($"Ses çalınamadı: {ex.Message}\n\nAyrıntılar: {App.LogPath}",
+                "WindowsClockWidget - Ses", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private AppSettings BuildResult()
@@ -251,6 +319,13 @@ public partial class SettingsWindow : Window
             ? "Above" : "Below";
 
         if (CityBox.SelectedItem is string city) r.City = city;
+        r.WeatherSource = WeatherSourceBox.SelectedValue as string ?? "OpenMeteo";
+        _credentialDrafts[_activeCredentialSource] = WeatherCredentialBox.Text.Trim();
+        r.OpenWeatherApiKey = _credentialDrafts.GetValueOrDefault("OpenWeather", "");
+        r.WeatherApiKey = _credentialDrafts.GetValueOrDefault("WeatherAPI", "");
+        r.MetNorwayUserAgent = _credentialDrafts.GetValueOrDefault("MetNorway", "");
+        r.WeatherRefreshMinutes = int.TryParse((WeatherRefreshBox.SelectedItem as ComboBoxItem)?.Tag as string, out var interval)
+            ? interval : 15;
         return r;
     }
 

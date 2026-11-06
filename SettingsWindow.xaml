@@ -49,7 +49,9 @@
         </Style>
     </Window.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -106,6 +108,30 @@
         <Border Grid.Row="1" Style="{StaticResource GroupBorder}" Margin="0,12,0,0">
             <StackPanel>
                 <TextBlock Text="HAVA DURUMU" FontSize="12" FontWeight="Bold" Foreground="#1F1E1D" Margin="0,0,0,10"/>
+
+                <TextBlock Text="Kaynak" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="WeatherSourceBox" Height="28" Margin="0,2,0,6"
+                          SelectionChanged="WeatherSource_SelectionChanged" SelectedValuePath="Tag">
+                    <ComboBoxItem Content="Open-Meteo (anahtarsız)" Tag="OpenMeteo"/>
+                    <ComboBoxItem Content="OpenWeather" Tag="OpenWeather"/>
+                    <ComboBoxItem Content="WeatherAPI.com" Tag="WeatherAPI"/>
+                    <ComboBoxItem Content="MET Norway" Tag="MetNorway"/>
+                </ComboBox>
+
+                <TextBlock Text="Güncelleme sıklığı" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="WeatherRefreshBox" Height="28" Margin="0,2,0,4" SelectedValuePath="Tag">
+                    <ComboBoxItem Content="5 dakikada bir" Tag="5"/>
+                    <ComboBoxItem Content="15 dakikada bir" Tag="15"/>
+                    <ComboBoxItem Content="30 dakikada bir" Tag="30"/>
+                    <ComboBoxItem Content="Saatte bir" Tag="60"/>
+                    <ComboBoxItem Content="3 saatte bir" Tag="180"/>
+                </ComboBox>
+                <TextBlock x:Name="WeatherSourceHint" FontSize="10" Foreground="#777" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                <StackPanel x:Name="WeatherCredentialPanel" Visibility="Collapsed" Margin="0,0,0,8">
+                    <TextBlock x:Name="WeatherCredentialLabel" Text="API anahtarı" Style="{StaticResource FieldLabel}"/>
+                    <TextBox x:Name="WeatherCredentialBox" Height="26" Margin="0,2,0,0"/>
+                </StackPanel>
 
                 <Grid>
                     <Grid.ColumnDefinitions>

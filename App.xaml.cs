@@ -41,7 +41,7 @@ public partial class App : Application
         };
     }
 
-    private static void Log(Exception ex)
+    public static void Log(Exception ex)
     {
         try
         {

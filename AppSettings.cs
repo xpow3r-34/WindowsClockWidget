@@ -1,6 +1,8 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Windows;
+using MessageBox = System.Windows.MessageBox;
 
 namespace WindowsClockWidget;
 
@@ -59,9 +61,13 @@ public class AppSettings
     public bool StartWithWindows { get; set; } = false;
 
     public int WeatherRefreshMinutes { get; set; } = 15;
+    public string WeatherSource { get; set; } = "OpenMeteo";
+    public string OpenWeatherApiKey { get; set; } = "";
+    public string WeatherApiKey { get; set; } = "";
+    public string MetNorwayUserAgent { get; set; } = "";
 
     [JsonIgnore]
-    public static string AppVersion => "1.2.1";
+    public static string AppVersion => "1.2.6";
 
     [JsonIgnore]
     public static string FilePath => Path.Combine(
@@ -81,8 +87,28 @@ public class AppSettings
             if (File.Exists(FilePath))
                 return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath)) ?? new();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+            PreserveUnreadableFile(FilePath);
+            MessageBox.Show(
+                $"Ayar dosyası okunamadı. Varsayılan ayarlarla devam edilecek; özgün dosyanın yedeği alınmaya çalışıldı.\n\nAyrıntılar: {App.LogPath}",
+                "WindowsClockWidget - Ayarlar", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
         return new();
+    }
+
+    private static void PreserveUnreadableFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Copy(path, $"{path}.corrupt-{DateTime.Now:yyyyMMdd-HHmmssfff}.bak");
+        }
+        catch (Exception backupError)
+        {
+            App.Log(backupError);
+        }
     }
 
     public void Save()

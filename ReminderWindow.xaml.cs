@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using ComboBox = System.Windows.Controls.ComboBox;
+using MessageBox = System.Windows.MessageBox;
 
 namespace WindowsClockWidget;
 
@@ -132,7 +133,10 @@ public partial class ReminderWindow : Window
             if (match != null) SoundBox.SelectedItem = match;
             else if (SoundBox.Items.Count > 0) SoundBox.SelectedIndex = 0;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+        }
     }
 
     private void PreviewSound_Click(object sender, RoutedEventArgs e)
@@ -142,8 +146,13 @@ public partial class ReminderWindow : Window
             var path = (SoundBox.SelectedItem as ComboBoxItem)?.Tag as string;
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return;
             using var player = new System.Media.SoundPlayer(path);
-            player.Play();
+            player.PlaySync();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            App.Log(ex);
+            MessageBox.Show($"Ses çalınamadı: {ex.Message}\n\nAyrıntılar: {App.LogPath}",
+                "WindowsClockWidget - Ses", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 }
